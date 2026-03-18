@@ -1,5 +1,7 @@
 package com.example.server;
 
+import com.example.server.config.JsonMapper;
+import com.example.server.handler.ActionHandler;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +22,7 @@ import java.util.Objects;
 @AllArgsConstructor
 public class ClientHandler implements Runnable{
     private final Socket clientSocket;
+    private final Map<String, ActionHandler> handlers;
 
     @Override
     public void run(){
@@ -34,12 +37,12 @@ public class ClientHandler implements Runnable{
             while((jsonRequest = in.readLine()) != null){
                 log.debug("Received JSON: {}", jsonRequest);
 
-                Request request = ServerMain.OBJECT_MAPPER.readValue(jsonRequest, Request.class);
+                Request request = JsonMapper.INSTANCE.readValue(jsonRequest, Request.class);
                 log.info("Processing action: {}", request);
 
                 Response response = processRequest(request);
 
-                String jsonResponse = ServerMain.OBJECT_MAPPER.writeValueAsString(response);
+                String jsonResponse = JsonMapper.INSTANCE.writeValueAsString(response);
 
                 out.println(jsonResponse);
                 log.info("Sent JSON: {}", jsonResponse);
@@ -51,27 +54,18 @@ public class ClientHandler implements Runnable{
             try {
                 clientSocket.close();
             }catch (IOException ex){
-                log.error("Error closing socket {}", ex);
+                log.error("Error closing socket ", ex);
             }
             log.info("Client disconnected: {}", clientSocket.getInetAddress());
         }
     }
     private Response processRequest(Request request){
         String action = request.getAction();
-
-        Map<String, Object> responseMap = new HashMap<>();
-
-        switch (action){
-            case "ECHO":
-                Object message = request.getData().get("message");
-                responseMap.put("echo", message);
-                return new Response("OK", "Echo successfull", responseMap);
-            case "PING":
-                responseMap.put("pong", System.currentTimeMillis());
-                return new Response("OK", "Pong", responseMap);
-            default:
-                return new Response("ERROR", "Unknown action: " + action, null);
+        ActionHandler handler = handlers.get(action);
+        if(handler == null){
+            return Response.error("Unknown action " + action);
         }
 
+        return handler.handle(request);
      }
 }

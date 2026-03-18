@@ -27,7 +27,7 @@ public class Response implements Serializable {
     }
 
     public static Response success(Map<String, Object> data){
-        return new Response("OK", "Operation successfull", data);
+        return new Response("OK", "Operation successful", data);
     }
 
     public static Response error(String message){
