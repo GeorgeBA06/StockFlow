@@ -14,6 +14,8 @@ public class DataBaseManager {
     private static EntityManagerFactory emf;
     private static ServerConfig config;
 
+    private static final ThreadLocal<EntityManager> threadLocalEm = new ThreadLocal<>();
+
     private DataBaseManager(){}
 
     public static synchronized void init(ServerConfig serverConfig){
@@ -52,11 +54,6 @@ public class DataBaseManager {
             emf = Persistence.createEntityManagerFactory("serverPU", properties);
             testConnection();
 
-            try(EntityManager em = emf.createEntityManager()){
-                em.createNativeQuery("SELECT 1").getSingleResult();
-                log.info("DatabaseManager initialized successfully with pool size: {}",
-                        config.getDbPoolMaximumSize());
-            }
         }catch (Exception ex){
             log.error("Failed to initialize Hibernate ", ex);
             throw new RuntimeException("DataBase initialization failed", ex);
@@ -71,11 +68,24 @@ public class DataBaseManager {
         }
     }
 
-    public EntityManager getEntityManager(){
+    public static EntityManager getEntityManager(){
         if(emf == null){
             throw new IllegalStateException("DataBaseManager not initialized");
         }
-        return emf.createEntityManager();
+        EntityManager em = threadLocalEm.get();
+        if(em == null || !em.isOpen()){
+            em = emf.createEntityManager();
+            threadLocalEm.set(em);
+        }
+        return em;
+    }
+
+    public static void closeEntityManager(){
+        EntityManager em = threadLocalEm.get();
+        if(em != null && em.isOpen()){
+            em.close();
+        }
+        threadLocalEm.remove();
     }
 
     public static void shutdown(){

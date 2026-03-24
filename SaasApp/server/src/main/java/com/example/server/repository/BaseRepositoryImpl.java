@@ -1,8 +1,11 @@
 package com.example.server.repository;
 
 import com.example.server.config.DataBaseManager;
+import com.example.server.config.TransactionManager;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.Query;
+import jakarta.persistence.TypedQuery;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -10,106 +13,83 @@ import java.util.Optional;
 
 @Slf4j
 public abstract class BaseRepositoryImpl<T,ID> implements BaseRepository<T,ID>{
-protected final DataBaseManager dataBaseManager;
 private final Class<T> entityClass;
 
 
-public BaseRepositoryImpl(DataBaseManager dataBaseManager, Class<T> entityClass){
-    this.dataBaseManager = dataBaseManager;
+public BaseRepositoryImpl(Class<T> entityClass){
     this.entityClass = entityClass;
 }
 
     @Override
     public Optional<T> findById(ID id){
-    try(EntityManager em = dataBaseManager.getEntityManager()) {
-    return Optional.ofNullable(em.find(entityClass, id));
-    }
-    }
-
-    @Override
-    public T save(T entity){
-    try(EntityManager em = dataBaseManager.getEntityManager()){
-        EntityTransaction et = em.getTransaction();
-        try{
-            et.begin();
-            em.persist(entity);
-            et.commit();
-            return entity;
-        }catch (Exception ex){
-            if(et.isActive()) et.rollback();
-            log.error("Failed to save entity", ex);
-            throw new RuntimeException("Failed to save entity");
-        }
-    }
-    }
-
-    @Override
-    public T update(T entity){
-    try(EntityManager em = dataBaseManager.getEntityManager()) {
-        EntityTransaction et = em.getTransaction();
-        try {
-            et.begin();
-            T merged = em.merge(entity);
-            et.commit();
-            log.debug("Entity updated: {}", merged);
-            return merged;
-        }catch (Exception ex){
-            if(et.isActive()) et.rollback();
-            log.error("Failed to update entity", ex);
-            throw new RuntimeException("Failed to update entity", ex);
-        }
-
-    }
+    return TransactionManager.executeInTransaction(em -> findById(id,em));
     }
 
     @Override
     public List<T> findAll(){
-    try(EntityManager em = dataBaseManager.getEntityManager()) {
-        return em.createQuery("SELECT e FROM " + entityClass.getSimpleName() + " e",entityClass)
-                .getResultList();
-    }
+    return TransactionManager.executeInTransaction(this::findAll);
     }
 
     @Override
-    public boolean existsById(ID id){
-    return findById(id).isPresent();
+    public T save(T entity){
+    return TransactionManager.executeInTransaction(em -> saveOrUpdate(entity, em));
+    }
+
+    @Override
+    public T update(T entity){
+    return TransactionManager.executeInTransaction(em -> saveOrUpdate(entity, em));
+    }
+
+    @Override
+    public void delete(T entity){
+    TransactionManager.executeInTransactionVoid(em -> delete(entity, em));
     }
 
     @Override
     public void deleteById(ID id){
-    try(EntityManager em = dataBaseManager.getEntityManager()){
-        EntityTransaction et = em.getTransaction();
-        try {
-            et.begin();
-            T entity = em.find(entityClass, id);
-            if(entity != null){
-                em.remove(entity);
-                log.debug("Entity with id {} deleted", id);
-            }else {
-                log.warn("Entity with id {} not found, nothing to delete", id);
-            }
-            et.commit();
-        }catch (Exception ex){
-            if(et.isActive()) et.rollback();
-            log.error("Failed to delete entity with id {}", id, ex);
-            throw new RuntimeException("Failed to delete entity with id: " + id, ex);
-        }
-    }
+    TransactionManager.executeInTransactionVoid(em -> deleteById(id, em));
     }
 
-    public void delete(T entity){
-    try(EntityManager em = dataBaseManager.getEntityManager()){
-        EntityTransaction et = em.getTransaction();
-        try {
-            et.begin();
-            T managedEntity = em.contains(entity) ? entity : em.merge(entity);
-            em.remove(managedEntity);
-            et.commit();
-        }catch (Exception ex){
-            if(et.isActive()) et.rollback();
-            log.error("Failed to delete entity", ex);
-            throw new RuntimeException("Failed to delete entity", ex);
-        }
+    @Override
+    public boolean existsById(ID id){
+    return TransactionManager.executeInTransaction(em -> existsById(id,em));
     }
+
+    public Optional<T> findById(ID id, EntityManager em){
+    return Optional.ofNullable(em.find(entityClass, id));
     }
+
+    public T saveOrUpdate(T entity, EntityManager em){
+           Object id = extractId(entity);
+           if(id == null || (id instanceof Number && ((Number)id).longValue() == 0)){
+               em.persist(entity);
+               return entity;
+           }else{
+              return em.merge(entity);
+           }
+    }
+
+    public List<T> findAll(EntityManager em){
+        return em.createQuery("SELECT e FROM " + entityClass.getSimpleName() + " e",entityClass)
+                .getResultList();
+    }
+
+    public void delete(T entity, EntityManager em){
+        T managedEntity = em.contains(entity) ? entity : em.merge(entity);
+        em.remove(managedEntity);
+    }
+
+    public void deleteById(ID id, EntityManager em){
+        findById(id, em).ifPresent(entityClass -> delete(entityClass, em));
+    }
+
+    public boolean existsById(ID id, EntityManager em){
+        String jpql = "SELECT COUNT(e) FROM " + entityClass.getSimpleName() + " e WHERE e.id = :id";
+        TypedQuery<Long> query = em.createQuery(jpql, Long.class);
+        query.setParameter("id", id);
+        Long count = query.getSingleResult();
+        return count > 0;
+    }
+
+    protected abstract Object extractId(T entity);
 }
