@@ -9,7 +9,8 @@ import java.util.Map;
 public class EchoHandler implements ActionHandler{
     @Override
     public Response handle(Request request){
-        Object message = request.getData().get("message");
+        Map<String, Object> map = (Map<String, Object>) request.getData();
+        Object message = map.get("message");
         Map<String, Object> data = new HashMap<>();
         data.put("echo", message);
         return Response.success("Echo successful", data);

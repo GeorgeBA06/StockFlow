@@ -1,11 +1,18 @@
 package com.example.server.config;
 
+import com.example.server.entity.User;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.SessionFactory;
+import org.hibernate.boot.registry.StandardServiceRegistry;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.AvailableSettings;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.jpa.HibernatePersistenceProvider;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,8 +57,22 @@ public class DataBaseManager {
         properties.put("hibernate.hikari.validationTimeout", 5000);
         properties.put("hibernate.hikari.leakDetectionThreshold", 10000);
 
+        properties.put(AvailableSettings.LOADED_CLASSES, Arrays.asList(User.class.getName()));
+
         try{
-            emf = Persistence.createEntityManagerFactory("serverPU", properties);
+
+            Configuration configuration = new Configuration();
+            properties.forEach((key,value)->configuration.setProperty(key, value.toString()));
+
+            configuration.addAnnotatedClass(User.class);
+
+            StandardServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
+                    .applySettings(configuration.getProperties())
+                    .build();
+
+            SessionFactory sessionFactory = configuration.buildSessionFactory(serviceRegistry);
+
+            emf = sessionFactory.unwrap(EntityManagerFactory.class);
             testConnection();
 
         }catch (Exception ex){

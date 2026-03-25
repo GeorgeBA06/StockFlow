@@ -15,7 +15,9 @@ import java.util.Objects;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Request implements Serializable {
     private String action;
-    private Map<String, Object> data;
-    private String token;
+    private String operation;
+    private Object data;
+//    private Map<String, Object> data;
+//    private String token;
 
 }

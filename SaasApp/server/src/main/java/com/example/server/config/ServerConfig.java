@@ -60,11 +60,13 @@ public class ServerConfig {
     }
 
     public String getDbUrl(){
-        return properties.getProperty("db.url");
+        String envUrl = System.getenv("DB_URL");
+        return envUrl != null ? envUrl : properties.getProperty("db.url");
     }
 
     public String getDbUsername(){
-        return properties.getProperty("db.username");
+        String envUsername = System.getenv("DB_USERNAME");
+        return envUsername != null ? envUsername : properties.getProperty("db.username");
     }
 
     public String getDbPassword(){

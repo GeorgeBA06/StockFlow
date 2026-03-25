@@ -1,0 +1,45 @@
+
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:18
+    container_name: my-postgres
+    environment:
+      POSTGRES_DB: my_pg
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  server:
+    build: .
+    container_name: myapp-server
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/my_pg
+      DB_USERNAME: postgres
+      DB_PASSWORD: secret
+    ports:
+      - "12345:12345"
+    networks:
+      - app-network
+    restart: on-failure
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

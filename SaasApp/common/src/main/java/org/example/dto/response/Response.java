@@ -15,18 +15,18 @@ import java.util.Map;
 public class Response implements Serializable {
     private String status;
     private String message;
-    private Map<String, Object> data;
+    private Object data;
 
 
     public boolean isSuccess(){
         return "OK".equals(status);
     }
 
-    public static Response success(String message, Map<String,Object> data){
+    public static Response success(String message, Object data){
         return new Response("OK", message, data);
     }
 
-    public static Response success(Map<String, Object> data){
+    public static Response success(Object data){
         return new Response("OK", "Operation successful", data);
     }
 

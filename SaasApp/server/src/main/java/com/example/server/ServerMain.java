@@ -1,8 +1,10 @@
 package com.example.server;
 
+import com.example.server.config.DataBaseManager;
 import com.example.server.config.ServerConfig;
 import com.example.server.handler.ActionHandler;
 import com.example.server.handler.EchoHandler;
+import com.example.server.handler.UserHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -21,7 +23,16 @@ public class ServerMain {
 
 
     public static void main(String[] args){
-        ServerConfig config = ServerConfig.getInstance();
+        ServerConfig config = null;
+        try {
+            config = ServerConfig.getInstance();
+
+            DataBaseManager.init(config);
+
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         int port = config.getServerPort();
         int poolSize = config.getServerPoolSize();
 
@@ -29,6 +40,7 @@ public class ServerMain {
 
         Map<String , ActionHandler> handlers = new HashMap<>();
         handlers.put("ECHO", new EchoHandler());
+        handlers.put("USER", new UserHandler());
 
         ExecutorService threadPool = Executors.newFixedThreadPool(poolSize);
 
@@ -45,6 +57,7 @@ public class ServerMain {
     }
     finally {
         threadPool.shutdown();
+        DataBaseManager.shutdown();
         log.info("Server stopped!");
     }
     }

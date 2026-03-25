@@ -5,6 +5,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
 import org.example.dto.request.Request;
 import org.example.dto.response.Response;
+import org.example.dto.user.UserCreateDto;
+import org.example.enums.Role;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -31,10 +33,17 @@ public class SimpleClient {
                 PrintWriter out = new PrintWriter(socket.getOutputStream(),true);
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))){
 
-            Map<String, Object> data = new HashMap<>();
-            data.put("message", "Hello from SimpleClient");
+            UserCreateDto userData = new UserCreateDto();
+            userData.setName("john_doe");
+            userData.setPassword("secret_123");
+            userData.setEmail("john@example.com");
+            userData.setRole(Role.ROLE_USER);
 
-            Request request = new Request("ECHO", data, null);
+            Request request = new Request();
+            request.setAction("USER");
+            request.setOperation("CREATE");
+            request.setData(userData);
+
 
             String jsonRequest = objectMapper.writeValueAsString(request);
             out.println(jsonRequest);
@@ -54,7 +63,8 @@ public class SimpleClient {
                 if(response.isSuccess()){
                     log.info("Successful operation!");
 
-                    Object echoData = response.getData().get("echo");
+                    Map<Object, String> map = (Map<Object, String>) response.getData();
+                    Object echoData = map.get("echo");
                     log.info("Received echo: {}", echoData);
                 }else {
                     log.error("Server error {}", response.getMessage());
