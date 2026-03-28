@@ -5,9 +5,11 @@ import com.example.server.config.ServerConfig;
 import com.example.server.handler.ActionHandler;
 import com.example.server.handler.EchoHandler;
 import com.example.server.handler.UserHandler;
+import com.example.server.util.ValidationUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import jakarta.validation.ValidatorFactory;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -58,6 +60,7 @@ public class ServerMain {
     finally {
         threadPool.shutdown();
         DataBaseManager.shutdown();
+        ValidationUtil.close();
         log.info("Server stopped!");
     }
     }

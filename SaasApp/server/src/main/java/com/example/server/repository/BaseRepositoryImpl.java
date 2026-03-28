@@ -80,7 +80,7 @@ public BaseRepositoryImpl(Class<T> entityClass){
     }
 
     public void deleteById(ID id, EntityManager em){
-        findById(id, em).ifPresent(entityClass -> delete(entityClass, em));
+        findById(id, em).ifPresent(entity -> delete(entity, em));
     }
 
     public boolean existsById(ID id, EntityManager em){

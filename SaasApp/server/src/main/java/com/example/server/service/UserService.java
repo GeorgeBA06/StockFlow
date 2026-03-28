@@ -6,6 +6,7 @@ import com.example.server.repository.implementations.UserRepositoryImpl;
 import com.example.server.repository.interfaces.UserRepository;
 import org.example.dto.user.UserCreateDto;
 import org.example.dto.user.UserDto;
+import org.example.dto.user.UserUpdateDto;
 
 import java.util.List;
 import java.util.Map;
@@ -48,7 +49,7 @@ public class UserService {
         });
     }
 
-    public UserDto updateUser(Long id, UserCreateDto dto) {
+    public UserDto updateUser(Long id, UserUpdateDto dto) {
         return TransactionManager.executeInTransaction(em -> {
             User user = userRepository.findById(id, em)
                     .orElseThrow(()->new IllegalArgumentException("There is no such user"));
@@ -58,9 +59,13 @@ public class UserService {
                 throw new IllegalArgumentException("User already exists");
             }
 
+            if(dto.getName()!=null){
             user.setName(dto.getName());
+            }
             user.setEmail(dto.getEmail());
-            user.setRole(dto.getRole());
+            if(dto.getRole()!=null) {
+                user.setRole(dto.getRole());
+            }
             if(user.getPassword() != null && !dto.getPassword().isEmpty()){
                 user.setPassword(dto.getPassword());
             }

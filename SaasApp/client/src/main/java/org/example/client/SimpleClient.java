@@ -35,8 +35,8 @@ public class SimpleClient {
 
             UserCreateDto userData = new UserCreateDto();
             userData.setName("john_doe");
-            userData.setPassword("secret_123");
-            userData.setEmail("john@example.com");
+            userData.setPassword("secret");
+            userData.setEmail("johnywick12345@example.com");
             userData.setRole(Role.ROLE_USER);
 
             Request request = new Request();
