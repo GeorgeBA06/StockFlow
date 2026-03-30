@@ -1,9 +1,6 @@
 package com.example.server.util;
 
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
-import jakarta.validation.ValidatorFactory;
+import jakarta.validation.*;
 
 
 import java.util.Set;
@@ -20,7 +17,7 @@ public class ValidationUtil {
             String message = violations.stream()
                     .map(ConstraintViolation :: getMessage)
                     .collect(Collectors.joining(", "));
-            throw new IllegalArgumentException("Validation failed: " + message);
+            throw new ValidationException(message);
         }
 
     }

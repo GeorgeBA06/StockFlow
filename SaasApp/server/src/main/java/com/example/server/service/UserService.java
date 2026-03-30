@@ -2,8 +2,10 @@ package com.example.server.service;
 
 import com.example.server.config.TransactionManager;
 import com.example.server.entity.User;
+import com.example.server.exception.NotFoundException;
 import com.example.server.repository.implementations.UserRepositoryImpl;
 import com.example.server.repository.interfaces.UserRepository;
+import jakarta.validation.ValidationException;
 import org.example.dto.user.UserCreateDto;
 import org.example.dto.user.UserDto;
 import org.example.dto.user.UserUpdateDto;
@@ -18,7 +20,7 @@ public class UserService {
     public UserDto createUser(UserCreateDto dto){
        return TransactionManager.executeInTransaction(em -> {
         if(userRepository.findByEmail(dto.getEmail(),em) != null){
-            throw new IllegalArgumentException("User with this email is already exists!");
+            throw new ValidationException("User with this email is already exists!");
         }
         User user = new User();
 
@@ -37,7 +39,7 @@ public class UserService {
         return TransactionManager.executeInTransaction(em ->{
             return userRepository.findById(id, em)
                     .map(this::toDto)
-                    .orElseThrow(()->new IllegalArgumentException("User not found"));
+                    .orElseThrow(()->new NotFoundException("User not found with id" + id));
         });
     }
 
@@ -52,11 +54,11 @@ public class UserService {
     public UserDto updateUser(Long id, UserUpdateDto dto) {
         return TransactionManager.executeInTransaction(em -> {
             User user = userRepository.findById(id, em)
-                    .orElseThrow(()->new IllegalArgumentException("There is no such user"));
+                    .orElseThrow(()->new NotFoundException("There is no such user with id " + id));
 
             if(!user.getEmail().equals(dto.getEmail()) &&
                     userRepository.findByEmail(dto.getEmail(),em) != null){
-                throw new IllegalArgumentException("User already exists");
+                throw new NotFoundException("Email already exists: " + dto.getEmail());
             }
 
             if(dto.getName()!=null){
@@ -78,7 +80,7 @@ public class UserService {
     public void deleteUser(Long id) {
         TransactionManager.executeInTransactionVoid(em -> {
             if(!userRepository.existsById(id, em)){
-                throw new IllegalArgumentException("User not found!");
+                throw new NotFoundException("User not found with id " + id);
             }
             userRepository.deleteById(id, em);
         });

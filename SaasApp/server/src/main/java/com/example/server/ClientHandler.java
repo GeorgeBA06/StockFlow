@@ -7,6 +7,9 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.example.dto.request.Request;
 import org.example.dto.response.Response;
+import org.example.exception.BaseException;
+import org.example.exception.ErrorCode;
+import org.example.exception.ErrorResponseDto;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -47,7 +50,8 @@ public class ClientHandler implements Runnable{
 
 
                 if (jsonRequest.length() > MAX_REQUEST_SIZE) {
-                    sendError(out, "Request too large");
+                    ErrorResponseDto dto = new ErrorResponseDto("Request too large", ErrorCode.INTERNAL_ERROR);
+                    sendError(out, dto);
                     continue;
                 }
 
@@ -80,15 +84,21 @@ public class ClientHandler implements Runnable{
             String jsonResponse = JsonMapper.INSTANCE.writeValueAsString(response);
             out.println(jsonResponse);
             log.debug("Sent JSON: {}", jsonResponse);
+        }catch (BaseException e){
+            log.warn("Business error: {} - {}", e.getErrorCode(), e.getMessage());
+            sendError(out, e.toErrorResponse());
         }catch (Exception ex){
             log.error("Error processing request from client", ex);
-            sendError(out, "Internal server error: " + ex.getMessage());
+            ErrorResponseDto errorResponseDto = new ErrorResponseDto("Internal server exception", ErrorCode.INTERNAL_ERROR);
+            sendError(out, errorResponseDto);
+
         }
     }
 
-    private void sendError(PrintWriter out, String message) {
+    private void sendError(PrintWriter out, ErrorResponseDto dto) {
         try {
-            out.println(JsonMapper.INSTANCE.writeValueAsString(Response.error(message)));
+            Response errorResponse = Response.error(dto);
+            out.println(JsonMapper.INSTANCE.writeValueAsString(errorResponse));
         }catch (Exception ex){
             log.error("Failed to send error response ", ex);
         }
@@ -98,7 +108,7 @@ public class ClientHandler implements Runnable{
         String action = request.getAction();
         ActionHandler handler = handlers.get(action);
         if(handler == null){
-            return Response.error("Unknown action " + action);
+            return Response.error("Unknown action " + action, ErrorCode.INTERNAL_ERROR);
         }
 
         return handler.handle(request);

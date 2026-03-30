@@ -4,6 +4,7 @@ import com.example.server.config.JsonMapper;
 import com.example.server.service.UserService;
 import com.example.server.util.ValidationUtil;
 import jakarta.validation.Validation;
+import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 import org.example.dto.request.Request;
 import org.example.dto.response.Response;
@@ -25,28 +26,14 @@ public class UserHandler implements ActionHandler{
     @Override
     public Response handle(Request request){
         String operation = request.getOperation();
-        try {
-            switch (operation){
-                case "CREATE":
-                    return createUser(request);
-                case "GET":
-                    return getUser(request);
-                case "LIST":
-                    return getAllUsers(request);
-                case "UPDATE":
-                    return updateUser(request);
-                case "DELETE":
-                    return deleteUser(request);
-                default:
-                    return Response.error("Unknown operation: " + operation);
-            }
-        }catch (IllegalArgumentException ex){
-            log.warn("User operation error: {}", ex.getMessage());
-            return Response.error(ex.getMessage());
-        }catch (Exception ex){
-            log.warn("Unexpected error in user handler", ex);
-            return Response.error("Internal server error");
-        }
+        return switch (operation) {
+            case "CREATE" -> createUser(request);
+            case "GET" -> getUser(request);
+            case "LIST" -> getAllUsers(request);
+            case "UPDATE" -> updateUser(request);
+            case "DELETE" -> deleteUser(request);
+            default -> throw new ValidationException("Unknown operation " + operation);
+        };
     }
 
     private Response deleteUser(Request request) {

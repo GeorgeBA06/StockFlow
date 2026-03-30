@@ -1,5 +1,6 @@
 package com.example.server.config;
 
+import com.example.server.exception.ConfigurationException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -22,8 +23,8 @@ public class ServerConfig {
             }
             properties.load(input);
         }catch (IOException ex){
-            log.error("Failed to load configuration, using defaults ", ex);
-            setDefaults();
+            log.error("Failed to load server configuration", ex);
+            throw new ConfigurationException("Failed to load server configuration", ex);
         }
     }
 
@@ -48,11 +49,20 @@ public class ServerConfig {
     }
 
     public int getServerPoolSize(){
-        return Integer.parseInt(properties.getProperty("server.pool.size"));
+        try {
+            return Integer.parseInt(properties.getProperty("server.pool.size"));
+        }catch (NumberFormatException ex){
+            throw new ConfigurationException("Invalid server.pool.size value", ex);
+        }
+
     }
 
     public int getServerPort(){
-        return Integer.parseInt(properties.getProperty("server.port"));
+        try {
+            return Integer.parseInt(properties.getProperty("server.port"));
+        }catch (NumberFormatException ex){
+            throw new ConfigurationException("Invalid server.port value", ex);
+        }
     }
 
     public String getJwtSecret(){

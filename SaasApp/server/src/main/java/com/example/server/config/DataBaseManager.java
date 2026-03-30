@@ -1,6 +1,7 @@
 package com.example.server.config;
 
 import com.example.server.entity.User;
+import com.example.server.exception.DataBaseException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
@@ -77,7 +78,7 @@ public class DataBaseManager {
 
         }catch (Exception ex){
             log.error("Failed to initialize Hibernate ", ex);
-            throw new RuntimeException("DataBase initialization failed", ex);
+            throw new DataBaseException("DataBase initialization failed", ex);
         }
 
     }
@@ -86,12 +87,15 @@ public class DataBaseManager {
         try(EntityManager em = emf.createEntityManager()){
             em.createNativeQuery("SELECT 1").getSingleResult();
             log.info("DataBase connection test successful");
+        }catch (Exception e){
+            log.error("Database connection test failed ", e);
+            throw new DataBaseException("Database connection test failed ", e);
         }
     }
 
     public static EntityManager getEntityManager(){
         if(emf == null){
-            throw new IllegalStateException("DataBaseManager not initialized");
+            throw new DataBaseException("DataBaseManager not initialized");
         }
         EntityManager em = threadLocalEm.get();
         if(em == null || !em.isOpen()){

@@ -1,5 +1,7 @@
 package com.example.server.config;
 
+import com.example.server.exception.DataBaseException;
+import com.example.server.exception.ServerException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import lombok.extern.slf4j.Slf4j;
@@ -47,7 +49,12 @@ public class TransactionManager {
                 et.setRollbackOnly();
                 log.error("Marked transaction for rollback due to error ", ex);
             }
-            throw new RuntimeException("Transaction failed", ex);
+
+            if(ex instanceof ServerException){
+                throw ex;
+            }
+
+            throw new DataBaseException("Database operation failed ", ex);
         } finally {
             if(isNewTransaction){
                 DataBaseManager.closeEntityManager();
