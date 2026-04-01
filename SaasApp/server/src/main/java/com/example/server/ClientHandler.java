@@ -1,6 +1,6 @@
 package com.example.server;
 
-import com.example.server.config.JsonMapper;
+import org.example.util.JsonMapper;
 import com.example.server.handler.ActionHandler;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,9 +17,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 @Data
 @Slf4j
@@ -51,7 +49,7 @@ public class ClientHandler implements Runnable{
 
                 if (jsonRequest.length() > MAX_REQUEST_SIZE) {
                     ErrorResponseDto dto = new ErrorResponseDto("Request too large", ErrorCode.INTERNAL_ERROR);
-                    sendError(out, dto);
+                    sendError(out, dto, null);
                     continue;
                 }
 
@@ -77,27 +75,35 @@ public class ClientHandler implements Runnable{
         }
 
     private void handleRequest(String jsonRequest, PrintWriter out) {
+        Request request = null;
         try {
-            Request request = JsonMapper.INSTANCE.readValue(jsonRequest, Request.class);
+            request = JsonMapper.INSTANCE.readValue(jsonRequest, Request.class);
             log.info("Processing action {}", request);
             Response response = processRequest(request);
+
+            if(response.getRequestId() == null){
+                response.setRequestId(request.getRequestId());
+            }
+
             String jsonResponse = JsonMapper.INSTANCE.writeValueAsString(response);
             out.println(jsonResponse);
             log.debug("Sent JSON: {}", jsonResponse);
         }catch (BaseException e){
             log.warn("Business error: {} - {}", e.getErrorCode(), e.getMessage());
-            sendError(out, e.toErrorResponse());
+            String requestId = (request != null) ? request.getRequestId() : null;
+            sendError(out, e.toErrorResponse(), requestId);
         }catch (Exception ex){
             log.error("Error processing request from client", ex);
             ErrorResponseDto errorResponseDto = new ErrorResponseDto("Internal server exception", ErrorCode.INTERNAL_ERROR);
-            sendError(out, errorResponseDto);
+            String requestId = (request != null) ? request.getRequestId() : null;
+            sendError(out, errorResponseDto, requestId);
 
         }
     }
 
-    private void sendError(PrintWriter out, ErrorResponseDto dto) {
+    private void sendError(PrintWriter out, ErrorResponseDto dto, String requestId) {
         try {
-            Response errorResponse = Response.error(dto);
+            Response errorResponse = Response.error(requestId, dto);
             out.println(JsonMapper.INSTANCE.writeValueAsString(errorResponse));
         }catch (Exception ex){
             log.error("Failed to send error response ", ex);
@@ -108,7 +114,7 @@ public class ClientHandler implements Runnable{
         String action = request.getAction();
         ActionHandler handler = handlers.get(action);
         if(handler == null){
-            return Response.error("Unknown action " + action, ErrorCode.INTERNAL_ERROR);
+            return Response.error(request.getRequestId(), "Unknown action " + action, ErrorCode.INTERNAL_ERROR);
         }
 
         return handler.handle(request);

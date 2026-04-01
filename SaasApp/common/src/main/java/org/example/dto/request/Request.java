@@ -17,6 +17,7 @@ public class Request implements Serializable {
     private String action;
     private String operation;
     private Object data;
+    private String requestId;
 //    private Map<String, Object> data;
 //    private String token;
 

@@ -1,9 +1,8 @@
 package com.example.server.handler;
 
-import com.example.server.config.JsonMapper;
+import org.example.util.JsonMapper;
 import com.example.server.service.UserService;
 import com.example.server.util.ValidationUtil;
-import jakarta.validation.Validation;
 import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 import org.example.dto.request.Request;
@@ -12,9 +11,6 @@ import org.example.dto.user.UserCreateDto;
 import org.example.dto.user.UserDto;
 import org.example.dto.user.UserIdDto;
 import org.example.dto.user.UserUpdateDto;
-import org.example.enums.Role;
-
-import java.util.Map;
 
 @Slf4j
 public class UserHandler implements ActionHandler{
@@ -40,13 +36,13 @@ public class UserHandler implements ActionHandler{
         UserIdDto userIdDto = JsonMapper.INSTANCE.convertValue(request.getData(), UserIdDto.class);
         ValidationUtil.validate(userIdDto);
         userService.deleteUser(userIdDto.getId());
-        return Response.success("User deleted successfully");
+        return Response.success(request.getRequestId(), "User deleted successfully");
 
     }
 
 
     private Response getAllUsers(Request request) {
-        return Response.success(userService.getAllUsers());
+        return Response.success(request.getRequestId(), userService.getAllUsers());
     }
 
     private Response updateUser(Request request) {
@@ -55,7 +51,7 @@ public class UserHandler implements ActionHandler{
         UserIdDto userIdDto = JsonMapper.INSTANCE.convertValue(request.getData(),UserIdDto.class);
         ValidationUtil.validate(userIdDto);
         UserDto updated = userService.updateUser(userIdDto.getId(),userUpdateDto);
-        return Response.success(updated);
+        return Response.success(request.getRequestId(), updated);
 
     }
 
@@ -75,7 +71,7 @@ public class UserHandler implements ActionHandler{
         UserIdDto userIdDto = JsonMapper.INSTANCE.convertValue(request.getData(), UserIdDto.class);
         ValidationUtil.validate(userIdDto);
         UserDto user = userService.getUser(userIdDto.getId());
-        return Response.success(user);
+        return Response.success(request.getRequestId(), user);
     }
 
 }
