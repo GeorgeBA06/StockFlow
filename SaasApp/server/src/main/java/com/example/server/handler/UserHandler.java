@@ -63,7 +63,7 @@ public class UserHandler implements ActionHandler{
         UserDto user = userService.createUser(dto);
         log.info("User created successfully with ID: {}", user.getId());
 
-        return Response.success("User created successfully", user);
+        return Response.success( request.getRequestId(), "User created successfully", user);
         //todo разобраться с Response success принимает в себя мапу, а не объект
     }
 

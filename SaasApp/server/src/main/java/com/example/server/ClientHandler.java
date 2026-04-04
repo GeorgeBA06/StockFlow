@@ -24,7 +24,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class ClientHandler implements Runnable{
     private static final int MAX_REQUEST_SIZE = 1024*1024;
-    private static final int SOCKET_TIMEOUT_MS = 30000;
+    private static final int SOCKET_TIMEOUT_MS = 300000;
 
     private final Socket clientSocket;
     private final Map<String, ActionHandler> handlers;
