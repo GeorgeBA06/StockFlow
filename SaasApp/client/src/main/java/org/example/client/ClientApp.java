@@ -1,6 +1,7 @@
 package org.example.client;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -8,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.client.config.ClientConfig;
 import org.example.client.controller.MainController;
 import org.example.client.network.NetworkService;
+import org.example.client.util.AlertUtil;
 
 import java.io.IOException;
 
@@ -17,6 +19,12 @@ public class ClientApp extends Application {
 
     @Override
     public void init() throws IOException{
+        Thread.setDefaultUncaughtExceptionHandler((thread, throwable)->{
+            log.error("Uncaught exception", throwable);
+            Platform.runLater(()->{
+                AlertUtil.showError("Unexpected error", throwable.getMessage(), null);
+            });
+        });
         ClientConfig config = ClientConfig.getInstance();
         networkService = new NetworkService(config);
         log.info("Client initialized");

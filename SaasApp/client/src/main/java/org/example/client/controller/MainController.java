@@ -4,8 +4,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import org.example.client.network.NetworkService;
+
 import javafx.scene.control.Label;
+import org.example.client.network.NetworkService;
+
 
 public class MainController {
     @FXML
@@ -23,6 +25,18 @@ public class MainController {
         }else{
             statusLabel.setText("Network service unavailable");
         }
+
+        networkService.addListener(new NetworkService.ConnectionListener() {
+            @Override
+            public void onConnectionLost() {
+                statusLabel.setText("Disconnected from server");
+            }
+
+            @Override
+            public void onConnectionReestablished() {
+                statusLabel.setText("Reconnected successfully");
+            }
+        });
     }
 
     @FXML

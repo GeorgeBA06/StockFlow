@@ -43,4 +43,8 @@ public class Response implements Serializable {
     public static Response error(String requestId, ErrorResponseDto dto){
         return new Response("ERROR", dto.getMessage(), null, dto.getErrorCode().name(), requestId);
     }
+
+    public ErrorCode getErrorCodeEnum(){
+        return errorCode != null ? ErrorCode.valueOf(errorCode) : null;
+    }
 }
