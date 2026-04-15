@@ -8,6 +8,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.example.client.network.NetworkService;
 import org.example.client.util.AlertUtil;
+import org.example.client.util.WindowManager;
 import org.example.dto.request.Request;
 import org.example.dto.response.Response;
 import org.example.dto.user.UserCreateDto;
@@ -27,9 +28,11 @@ public class CreateUserController {
     @FXML private Label resultLabel;
 
     private final NetworkService networkService;
+    private final WindowManager windowManager;
 
-    public CreateUserController(NetworkService networkService){
+    public CreateUserController(NetworkService networkService, WindowManager windowManager){
         this.networkService =networkService;
+        this.windowManager = windowManager;
     }
 
     @FXML
@@ -72,9 +75,7 @@ public class CreateUserController {
             javafx.application.Platform.runLater(()->{
                 if(response.isSuccess()){
                     resultLabel.setText("User created successfully!");
-                    nameField.clear();
-                    passwordField.clear();
-                    emailField.clear();
+                    windowManager.closeCreateUserWindow();
                 }else {
                     String errorMessage = response.getMessage();
                     ErrorCode errorCode = response.getErrorCodeEnum();

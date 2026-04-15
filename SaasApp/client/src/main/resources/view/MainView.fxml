@@ -1,19 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Button?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
 
 <VBox xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="org.example.client.controller.MainController"
-      spacing="10"
-      alignment="CENTER">
+      spacing="16"
+      alignment="CENTER"
+      prefWidth="420.0"
+      prefHeight="260.0"
+      style="-fx-background-color: linear-gradient(to bottom, #FCFBF7, #F4F7F8);">
+
     <padding>
-        <Insets top="20" right="20" bottom="20" left="20"/>
+        <Insets top="28" right="28" bottom="28" left="28"/>
     </padding>
-    <Label text="Warehouse Client" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
-    <Label fx:id="statusLabel" text="Connecting..." style="-fx-font-size: 14px;"/>
-    <Button text="Create User" onAction="#openCreateUserDialog"/>
+
+    <Label text="Warehouse Client"
+           style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #2D6FA3;"/>
+
+    <Label text="Client workspace"
+           style="-fx-font-size: 13px; -fx-text-fill: #7C8A96;"/>
+
+    <Label fx:id="statusLabel"
+           text="Connecting..."
+           wrapText="true"
+           maxWidth="320.0"
+           alignment="CENTER"
+           style="-fx-font-size: 14px; -fx-text-fill: #4F6475; -fx-background-color: #EEF6FB; -fx-background-radius: 14; -fx-padding: 10 16 10 16; -fx-border-color: #D4EAF5; -fx-border-radius: 14;"/>
+
+    <Button text="Create User"
+            onAction="#openCreateUserDialog"
+            prefWidth="170.0"
+            prefHeight="42.0"
+            style="-fx-background-color: #2F8FD8; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-background-radius: 14; -fx-cursor: hand; -fx-padding: 10 18 10 18;"/>
+
 </VBox>

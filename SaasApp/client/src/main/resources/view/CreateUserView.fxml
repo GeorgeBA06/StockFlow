@@ -1,36 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.PasswordField?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Button?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.VBox?>
 
 <VBox xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="org.example.client.controller.CreateUserController"
-      spacing="10"
-      alignment="CENTER">
+      spacing="18"
+      alignment="TOP_CENTER"
+      prefWidth="500.0"
+      prefHeight="420.0"
+      style="-fx-background-color: linear-gradient(to bottom, #FCFBF7, #F3F7F8);">
+
     <padding>
-        <Insets top="20" right="20" bottom="20" left="20"/>
+        <Insets top="28" right="30" bottom="28" left="30"/>
     </padding>
-    <Label text="Create New User" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
-    <GridPane hgap="10" vgap="10">
-        <Label text="Name:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-        <TextField fx:id="nameField" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
-        <Label text="Password:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-        <PasswordField fx:id="passwordField" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+    <Label text="Create New User"
+           style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2D6FA3;"/>
 
-        <Label text="Email:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
-        <TextField fx:id="emailField" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+    <Label text="Fill in the account details"
+           style="-fx-font-size: 13px; -fx-text-fill: #7C8A96;"/>
 
-        <Label text="Role:" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
-        <ComboBox fx:id="roleCombo" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+    <GridPane hgap="14" vgap="14"
+              maxWidth="420.0"
+              style="-fx-background-color: #FFFDF9; -fx-background-radius: 22; -fx-border-color: #E4EEF2; -fx-border-radius: 22; -fx-padding: 22 22 22 22;">
+
+        <Label text="Name:" GridPane.columnIndex="0" GridPane.rowIndex="0"
+               style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #456172;"/>
+        <TextField fx:id="nameField" GridPane.columnIndex="1" GridPane.rowIndex="0"
+                   promptText="Enter name"
+                   prefWidth="240.0"
+                   style="-fx-background-color: #F7FBFD; -fx-border-color: #D7E8F1; -fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 10 12 10 12; -fx-font-size: 13px;"/>
+
+        <Label text="Password:" GridPane.columnIndex="0" GridPane.rowIndex="1"
+               style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #456172;"/>
+        <PasswordField fx:id="passwordField" GridPane.columnIndex="1" GridPane.rowIndex="1"
+                       promptText="Enter password"
+                       prefWidth="240.0"
+                       style="-fx-background-color: #F7FBFD; -fx-border-color: #D7E8F1; -fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 10 12 10 12; -fx-font-size: 13px;"/>
+
+        <Label text="Email:" GridPane.columnIndex="0" GridPane.rowIndex="2"
+               style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #456172;"/>
+        <TextField fx:id="emailField" GridPane.columnIndex="1" GridPane.rowIndex="2"
+                   promptText="Enter email"
+                   prefWidth="240.0"
+                   style="-fx-background-color: #F7FBFD; -fx-border-color: #D7E8F1; -fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 10 12 10 12; -fx-font-size: 13px;"/>
+
+        <Label text="Role:" GridPane.columnIndex="0" GridPane.rowIndex="3"
+               style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #456172;"/>
+        <ComboBox fx:id="roleCombo" GridPane.columnIndex="1" GridPane.rowIndex="3"
+                  prefWidth="240.0"
+                  style="-fx-background-color: #F7FBFD; -fx-border-color: #D7E8F1; -fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 6 10 6 10; -fx-font-size: 13px;"/>
     </GridPane>
-    <Button text="Create" onAction="#onCreate"/>
-    <Label fx:id="resultLabel" text=""/>
+
+    <Button text="Create"
+            onAction="#onCreate"
+            prefWidth="170.0"
+            prefHeight="42.0"
+            style="-fx-background-color: #39A66A; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-background-radius: 14; -fx-cursor: hand; -fx-padding: 10 18 10 18;"/>
+
+    <Label fx:id="resultLabel"
+           text=""
+           wrapText="true"
+           maxWidth="360.0"
+           alignment="CENTER"
+           style="-fx-font-size: 13px; -fx-text-fill: #4F6475; -fx-background-color: #EEF8F1; -fx-background-radius: 12; -fx-padding: 8 14 8 14;"/>
+
 </VBox>

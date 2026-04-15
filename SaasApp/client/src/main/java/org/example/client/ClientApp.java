@@ -10,12 +10,14 @@ import org.example.client.config.ClientConfig;
 import org.example.client.controller.MainController;
 import org.example.client.network.NetworkService;
 import org.example.client.util.AlertUtil;
+import org.example.client.util.WindowManager;
 
 import java.io.IOException;
 
 @Slf4j
 public class ClientApp extends Application {
     private NetworkService networkService;
+    private WindowManager windowManager;
 
     @Override
     public void init() throws IOException{
@@ -27,6 +29,7 @@ public class ClientApp extends Application {
         });
         ClientConfig config = ClientConfig.getInstance();
         networkService = new NetworkService(config);
+        windowManager = new WindowManager();
         log.info("Client initialized");
     }
 
@@ -35,7 +38,7 @@ public class ClientApp extends Application {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/MainView.fxml"));
         loader.setControllerFactory(param ->{
             if(param == MainController.class){
-                return new MainController(networkService);
+                return new MainController(networkService, windowManager);
             }
 
 

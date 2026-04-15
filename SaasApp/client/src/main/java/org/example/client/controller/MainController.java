@@ -7,6 +7,7 @@ import javafx.stage.Stage;
 
 import javafx.scene.control.Label;
 import org.example.client.network.NetworkService;
+import org.example.client.util.WindowManager;
 
 
 public class MainController {
@@ -14,9 +15,11 @@ public class MainController {
     private Label statusLabel;
 
     private final NetworkService networkService;
+    private final WindowManager windowManager;
 
-    public MainController(NetworkService networkService){
+    public MainController(NetworkService networkService, WindowManager windowManager){
         this.networkService = networkService;
+        this.windowManager = windowManager;
     }
 
     public void initialize(){
@@ -41,24 +44,6 @@ public class MainController {
 
     @FXML
     public void openCreateUserDialog(){
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/CreateUserView.fxml"));
-            loader.setControllerFactory(param->{
-                if(param == CreateUserController.class){
-                    return new CreateUserController(networkService);
-                }
-                try {
-                    return param.getDeclaredConstructor().newInstance();
-                }catch (Exception ex){
-                    throw new RuntimeException(ex);
-                }
-            });
-            Stage stage = new Stage();
-            stage.setTitle("Create User");
-            stage.setScene(new Scene(loader.load()));
-            stage.show();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+      windowManager.openCreateUserWindow(networkService);
     }
 }
