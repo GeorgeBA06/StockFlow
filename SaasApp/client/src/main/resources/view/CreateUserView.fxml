@@ -12,65 +12,49 @@
 <VBox xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="org.example.client.controller.CreateUserController"
-      spacing="18"
-      alignment="TOP_CENTER"
-      prefWidth="500.0"
-      prefHeight="420.0"
-      style="-fx-background-color: linear-gradient(to bottom, #FCFBF7, #F3F7F8);">
+      spacing="12"
+      alignment="CENTER"
+      prefWidth="420"
+      prefHeight="360"
+      style="-fx-background-color: #F8FAFC;">
 
     <padding>
-        <Insets top="28" right="30" bottom="28" left="30"/>
+        <Insets top="24" right="24" bottom="24" left="24"/>
     </padding>
 
-    <Label text="Create New User"
-           style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2D6FA3;"/>
+    <Label text="Create Account"
+           style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #1E3A8A;"/>
 
-    <Label text="Fill in the account details"
-           style="-fx-font-size: 13px; -fx-text-fill: #7C8A96;"/>
-
-    <GridPane hgap="14" vgap="14"
-              maxWidth="420.0"
-              style="-fx-background-color: #FFFDF9; -fx-background-radius: 22; -fx-border-color: #E4EEF2; -fx-border-radius: 22; -fx-padding: 22 22 22 22;">
-
-        <Label text="Name:" GridPane.columnIndex="0" GridPane.rowIndex="0"
-               style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #456172;"/>
-        <TextField fx:id="nameField" GridPane.columnIndex="1" GridPane.rowIndex="0"
+        <TextField fx:id="nameField"
                    promptText="Enter name"
                    prefWidth="240.0"
                    style="-fx-background-color: #F7FBFD; -fx-border-color: #D7E8F1; -fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 10 12 10 12; -fx-font-size: 13px;"/>
 
-        <Label text="Password:" GridPane.columnIndex="0" GridPane.rowIndex="1"
-               style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #456172;"/>
-        <PasswordField fx:id="passwordField" GridPane.columnIndex="1" GridPane.rowIndex="1"
+        <PasswordField fx:id="passwordField"
                        promptText="Enter password"
                        prefWidth="240.0"
                        style="-fx-background-color: #F7FBFD; -fx-border-color: #D7E8F1; -fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 10 12 10 12; -fx-font-size: 13px;"/>
 
-        <Label text="Email:" GridPane.columnIndex="0" GridPane.rowIndex="2"
-               style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #456172;"/>
-        <TextField fx:id="emailField" GridPane.columnIndex="1" GridPane.rowIndex="2"
+
+        <TextField fx:id="emailField"
                    promptText="Enter email"
                    prefWidth="240.0"
                    style="-fx-background-color: #F7FBFD; -fx-border-color: #D7E8F1; -fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 10 12 10 12; -fx-font-size: 13px;"/>
 
-        <Label text="Role:" GridPane.columnIndex="0" GridPane.rowIndex="3"
-               style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #456172;"/>
-        <ComboBox fx:id="roleCombo" GridPane.columnIndex="1" GridPane.rowIndex="3"
-                  prefWidth="240.0"
-                  style="-fx-background-color: #F7FBFD; -fx-border-color: #D7E8F1; -fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 6 10 6 10; -fx-font-size: 13px;"/>
-    </GridPane>
 
-    <Button text="Create"
+    <Button text="Register"
             onAction="#onCreate"
-            prefWidth="170.0"
-            prefHeight="42.0"
-            style="-fx-background-color: #39A66A; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-background-radius: 14; -fx-cursor: hand; -fx-padding: 10 18 10 18;"/>
+            maxWidth="260"
+            style="-fx-background-color: #10B981; -fx-text-fill: white; -fx-font-weight: bold;"/>
+
+    <Button text="Cancel"
+            onAction="#onCancel"
+            maxWidth="260"
+            style="-fx-background-color: #CBD5E1; -fx-text-fill: #0F172A; -fx-font-weight: bold;"/>
 
     <Label fx:id="resultLabel"
-           text=""
            wrapText="true"
-           maxWidth="360.0"
-           alignment="CENTER"
-           style="-fx-font-size: 13px; -fx-text-fill: #4F6475; -fx-background-color: #EEF8F1; -fx-background-radius: 12; -fx-padding: 8 14 8 14;"/>
+           maxWidth="260"
+           style="-fx-text-fill: #B91C1C;"/>
 
 </VBox>

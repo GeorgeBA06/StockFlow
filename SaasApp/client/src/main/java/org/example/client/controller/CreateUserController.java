@@ -24,8 +24,7 @@ public class CreateUserController {
     @FXML private TextField nameField;
     @FXML private PasswordField passwordField;
     @FXML private TextField emailField;
-    @FXML private ComboBox<Role> roleCombo;
-    @FXML private Label resultLabel;
+       @FXML private Label resultLabel;
 
     private final NetworkService networkService;
     private final WindowManager windowManager;
@@ -35,18 +34,14 @@ public class CreateUserController {
         this.windowManager = windowManager;
     }
 
-    @FXML
-    public void initialize(){
-        roleCombo.getItems().setAll(Role.values());
-        roleCombo.setValue(Role.ROLE_USER);
-    }
+
 
     @FXML
     public void onCreate(){
         String name = nameField.getText().trim();
         String password = passwordField.getText();
         String email = emailField.getText().trim();
-        Role role = roleCombo.getValue();
+
 
         if(name.isEmpty() || password.isEmpty() || email.isEmpty()){
             resultLabel.setText("All fields are required");
@@ -61,15 +56,15 @@ public class CreateUserController {
         userCreateDto.setName(name);
         userCreateDto.setPassword(password);
         userCreateDto.setEmail(email);
-        userCreateDto.setRole(role);
+        userCreateDto.setRole(Role.ROLE_USER);
 
         Request request = new Request();
 
-        request.setAction("USER");
-        request.setOperation("CREATE");
+        request.setAction("AUTH");
+        request.setOperation("REGISTER");
         request.setData(userCreateDto);
 
-        resultLabel.setText("Creating...");
+        resultLabel.setText("Creating account...");
         CompletableFuture<Response> future = networkService.send(request);
         future.thenAccept(response -> {
             javafx.application.Platform.runLater(()->{
@@ -82,7 +77,7 @@ public class CreateUserController {
                     if(errorCode == ErrorCode.VALIDATION_ERROR){
                         errorMessage = "Validation failed" + errorMessage;
                     }else if(errorCode == ErrorCode.UNAUTHORIZED){
-                        errorMessage = "Not authorized to create users";
+                        errorMessage = "You don't have a permission to perform this action";
                     }
                     resultLabel.setText(errorMessage);
 
@@ -95,6 +90,11 @@ public class CreateUserController {
             });
             return null;
         });
+    }
+
+    @FXML
+    public void onCancel(){
+        windowManager.closeCreateUserWindow();
     }
 
 }

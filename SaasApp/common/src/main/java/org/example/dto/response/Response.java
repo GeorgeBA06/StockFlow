@@ -20,6 +20,7 @@ public class Response implements Serializable {
     private Object data;
     private String  errorCode;
     private String requestId;
+    private String token;
 
 
     public boolean isSuccess(){
@@ -29,19 +30,23 @@ public class Response implements Serializable {
 
 
     public static Response success(String requestId, String message, Object data){
-        return new Response("OK", message, data,null,requestId);
+        return new Response("OK", message, data,null,requestId,null);
+    }
+
+    public static Response successWithToken(String requestId, String message, Object data, String token) {
+        return new Response("OK", message, data, null, requestId, token);
     }
 
     public static Response success(String requestId, Object data){
-        return new Response("OK", "Operation successful", data, null, requestId);
+        return new Response("OK", "Operation successful", data, null, requestId, null);
     }
 
     public static Response error(String requestId, String message, ErrorCode errorCode){
-       return new Response("ERROR", message, null, errorCode != null ? errorCode.name() : null, requestId);
+       return new Response("ERROR", message, null, errorCode != null ? errorCode.name() : null, requestId, null);
     }
 
     public static Response error(String requestId, ErrorResponseDto dto){
-        return new Response("ERROR", dto.getMessage(), null, dto.getErrorCode().name(), requestId);
+        return new Response("ERROR", dto.getMessage(), null, dto.getErrorCode().name(), requestId, null);
     }
 
     public ErrorCode getErrorCodeEnum(){

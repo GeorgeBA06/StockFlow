@@ -5,11 +5,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.client.config.ClientConfig;
 import org.example.dto.request.Request;
 import org.example.dto.response.Response;
+import org.example.exception.ErrorCode;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.SocketTimeoutException;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -17,6 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Slf4j
 public class NetworkService implements AutoCloseable{
     private final ClientConfig clientConfig;
+    private final SessionManager sessionManager;
     private ConnectionManager connection;
     private final ExecutorService receiverExecutor = Executors.newSingleThreadExecutor();
     private final Map<String, CompletableFuture<Response>> pendingRequests = new ConcurrentHashMap<>();
@@ -28,8 +31,9 @@ public class NetworkService implements AutoCloseable{
     }
     private volatile AtomicBoolean running = new AtomicBoolean(true);
 
-    public NetworkService(ClientConfig clientConfig) throws IOException {
+    public NetworkService(ClientConfig clientConfig, SessionManager sessionManager) throws IOException {
       this.clientConfig = clientConfig;
+      this.sessionManager = sessionManager;
       connect();
       startReceiver();
 
@@ -86,6 +90,12 @@ public class NetworkService implements AutoCloseable{
         }
         String requestId = UUID.randomUUID().toString();
         request.setRequestId(requestId);
+
+        if(request.getToken() == null || request.getToken().isBlank() &&
+        sessionManager.isAuthenticated()){
+            request.setToken(sessionManager.getToken());
+        }
+
         CompletableFuture<Response> future = new CompletableFuture<>();
         pendingRequests.put(requestId, future);
         try{
@@ -94,7 +104,13 @@ public class NetworkService implements AutoCloseable{
             pendingRequests.remove(requestId);
             future.completeExceptionally(ex);
         }
-        return future;
+        return future.thenApply(response -> {
+            if(response.getErrorCodeEnum() == ErrorCode.UNAUTHORIZED && sessionManager.isAuthenticated()){
+                log.warn("Unauthorized response received. Clearing client session.");
+                sessionManager.closeSession();
+            }
+            return response;
+        });
     }
 
     private void notifyListeners(){

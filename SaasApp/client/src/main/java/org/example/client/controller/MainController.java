@@ -7,6 +7,7 @@ import javafx.stage.Stage;
 
 import javafx.scene.control.Label;
 import org.example.client.network.NetworkService;
+import org.example.client.network.SessionManager;
 import org.example.client.util.WindowManager;
 
 
@@ -16,10 +17,12 @@ public class MainController {
 
     private final NetworkService networkService;
     private final WindowManager windowManager;
+    private final SessionManager sessionManager;
 
-    public MainController(NetworkService networkService, WindowManager windowManager){
+    public MainController(NetworkService networkService, WindowManager windowManager, SessionManager sessionManager){
         this.networkService = networkService;
         this.windowManager = windowManager;
+        this.sessionManager = sessionManager;
     }
 
     public void initialize(){
@@ -45,5 +48,11 @@ public class MainController {
     @FXML
     public void openCreateUserDialog(){
       windowManager.openCreateUserWindow(networkService);
+    }
+
+    @FXML
+    public void onLogout() {
+        sessionManager.closeSession();
+        windowManager.showLoginView(networkService, sessionManager);
     }
 }

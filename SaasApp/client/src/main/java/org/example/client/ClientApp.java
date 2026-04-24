@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.client.config.ClientConfig;
 import org.example.client.controller.MainController;
 import org.example.client.network.NetworkService;
+import org.example.client.network.SessionManager;
 import org.example.client.util.AlertUtil;
 import org.example.client.util.WindowManager;
 
@@ -16,8 +17,10 @@ import java.io.IOException;
 
 @Slf4j
 public class ClientApp extends Application {
+
     private NetworkService networkService;
     private WindowManager windowManager;
+    private SessionManager sessionManager;
 
     @Override
     public void init() throws IOException{
@@ -28,30 +31,16 @@ public class ClientApp extends Application {
             });
         });
         ClientConfig config = ClientConfig.getInstance();
-        networkService = new NetworkService(config);
+        sessionManager = new SessionManager();
+        networkService = new NetworkService(config, sessionManager);
         windowManager = new WindowManager();
         log.info("Client initialized");
     }
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/MainView.fxml"));
-        loader.setControllerFactory(param ->{
-            if(param == MainController.class){
-                return new MainController(networkService, windowManager);
-            }
-
-
-            try{
-                return param.getDeclaredConstructor().newInstance();
-            }catch (Exception e){
-                throw new RuntimeException(e);
-            }
-        });
-            Scene scene = new Scene(loader.load());
-            primaryStage.setTitle("Warehouse Client");
-            primaryStage.setScene(scene);
-            primaryStage.show();
+        windowManager.setPrimaryStage(primaryStage);
+        windowManager.showLoginView(networkService, sessionManager);
 
     }
 

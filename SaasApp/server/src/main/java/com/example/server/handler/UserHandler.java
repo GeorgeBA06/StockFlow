@@ -15,7 +15,11 @@ import org.example.dto.user.UserUpdateDto;
 @Slf4j
 public class UserHandler implements ActionHandler{
 
-    private final UserService userService = new UserService();
+    private final UserService userService;
+
+    public UserHandler(UserService userService){
+        this.userService = userService;
+    }
 
 
 
@@ -64,7 +68,7 @@ public class UserHandler implements ActionHandler{
         log.info("User created successfully with ID: {}", user.getId());
 
         return Response.success( request.getRequestId(), "User created successfully", user);
-        //todo разобраться с Response success принимает в себя мапу, а не объект
+
     }
 
     private Response getUser(Request request) {

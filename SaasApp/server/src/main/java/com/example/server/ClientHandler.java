@@ -1,5 +1,7 @@
 package com.example.server;
 
+import com.example.server.security.AuthorizationService;
+import com.example.server.security.JwtService;
 import org.example.util.JsonMapper;
 import com.example.server.handler.ActionHandler;
 import lombok.AllArgsConstructor;
@@ -28,6 +30,8 @@ public class ClientHandler implements Runnable{
 
     private final Socket clientSocket;
     private final Map<String, ActionHandler> handlers;
+    private final JwtService jwtService;
+    private final AuthorizationService authorizationService;
 
     @Override
     public void run(){
@@ -112,11 +116,33 @@ public class ClientHandler implements Runnable{
 
     private Response processRequest(Request request){
         String action = request.getAction();
+
         ActionHandler handler = handlers.get(action);
         if(handler == null){
-            return Response.error(request.getRequestId(), "Unknown action " + action, ErrorCode.INTERNAL_ERROR);
+            return Response.error(request.getRequestId(),
+                    "Unknown action " + action,
+                    ErrorCode.INTERNAL_ERROR);
         }
 
+        if(handler.requiresAuthentication()){
+            String token = request.getToken();
+            if(token == null || token.isBlank()){
+                return Response.error(request.getRequestId(),
+                        "Authentication token is missing",
+                        ErrorCode.UNAUTHORIZED);
+            }
+
+            if(!jwtService.isValid(token)){
+                return Response.error(request.getRequestId(),
+                        "Invalid or expired authentication token",
+                        ErrorCode.UNAUTHORIZED);
+            }
+
+            Response authorizationError = authorizationService.authorize(request);
+            if(authorizationError != null){
+                return authorizationError;
+            }
+        }
         return handler.handle(request);
      }
 }

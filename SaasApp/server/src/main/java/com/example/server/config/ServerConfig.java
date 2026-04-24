@@ -1,6 +1,7 @@
 package com.example.server.config;
 
 import com.example.server.exception.ConfigurationException;
+import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -32,6 +33,7 @@ public class ServerConfig {
         properties.setProperty("server.port", "12345");
         properties.setProperty("server.pool.size", "10");
         properties.setProperty("jwt.secret", "mySecret");
+        properties.setProperty("jwt.expiration-ms", "86400000");
         properties.setProperty("db.url", "jdbc:postgresql://localhost:5432/mydb");
         properties.setProperty("db.username", "postgres");
         properties.setProperty("db.password", "secret");
@@ -66,7 +68,24 @@ public class ServerConfig {
     }
 
     public String getJwtSecret(){
+        String envSecret = System.getenv("jwt.secret");
+        if(envSecret != null && !envSecret.isBlank()){
+            return envSecret;
+        }
         return properties.getProperty("jwt.secret");
+    }
+
+    public long getJwtExpirationMs(){
+       String envExpiration = System.getenv("jwt.expiration-ms");
+       String value = ((envExpiration!=null && !envExpiration.isBlank())
+       ? envExpiration
+               : properties.getProperty("jwt.expiration-ms"));
+
+       try{
+           return Long.parseLong(value);
+       }catch (NumberFormatException ex){
+           throw new ValidationException("Invalid jwt.expiration-ms value", ex);
+       }
     }
 
     public String getDbUrl(){
